@@ -1,4 +1,4 @@
-unixmon
+linuxmon
 =======
 
-Extract UNIX system status information from a single C++11 file
+Extract LINUX system status information from a single C++11 file
