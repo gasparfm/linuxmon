@@ -1,5 +1,7 @@
 /* @(#)umon.h
  */
+#pragma once
+
 #ifndef _UMON_H
 #define _UMON_H 1
 /*
@@ -49,6 +51,7 @@
 *           finishing mountsInfo() function and the internal vector was not written properly.
 * 20141222: processes information
 * 20141224: some doc and githubbing !!
+* 20150320: Made functions static
 *
 * Bugs:
 * 20141219: Sometimes received SIGABRT when loading mounts information. FIXED 20141220
@@ -214,49 +217,49 @@ namespace Umon
   /* Some getters/setters */
 
   /** get size precission (to use with @see size() ) */
-  int8_t sizePrecission()
+  static int8_t sizePrecission()
   {
     return _sizePrecission;
   }
 
   /** set size precission (to use with @see size() ) */
-  int8_t sizePrecission(int8_t val)
+  static int8_t sizePrecission(int8_t val)
   {
     _sizePrecission = val;
     return _sizePrecission;
   }
 
   /* double value duration getter/s */
-  double valueDuration()
+  static double valueDuration()
   {
     return std::chrono::duration_cast<std::chrono::duration<double,std::ratio<1>>>(_valueDuration).count();
   }
 
-  double valueDuration(double val)
+  static double valueDuration(double val)
   {
     _valueDuration = std::chrono::milliseconds(static_cast<unsigned long>(val * 1000));
     return std::chrono::duration_cast<std::chrono::duration<double,std::ratio<1>>>(_valueDuration).count();
   }
 
   /* double mount waiting getter/s */
-  double mountWaiting()
+  static double mountWaiting()
   {
     return std::chrono::duration_cast<std::chrono::duration<double,std::ratio<1>>>(_mountWaiting).count();
   }
 
-  double mountWaiting(double val)
+  static double mountWaiting(double val)
   {
     _mountWaiting = std::chrono::milliseconds(static_cast<unsigned long>(val * 1000));
     return std::chrono::duration_cast<std::chrono::duration<double,std::ratio<1>>>(_mountWaiting).count();
   }
 
   /* value check interval getter/s */
-  unsigned valueCheckInterval()
+  static unsigned valueCheckInterval()
   {
     return _valueCheckInterval;
   }
 
-  unsigned valueCheckInterval(unsigned val)
+  static unsigned valueCheckInterval(unsigned val)
   {
     if (val > 0)
       _valueCheckInterval = val;
@@ -265,7 +268,7 @@ namespace Umon
   }
 
   /** Humanize size */
-  std::string size(long double size, int8_t precission=-1)
+  static std::string size(long double size, int8_t precission=-1)
   {
     static const char* units[10]={"bytes","Kb","Mb","Gb","Tb","Pb","Eb","Zb","Yb","Bb"};
     /* Using a char instead of ostringstream precission because it's faster */
@@ -288,7 +291,7 @@ namespace Umon
   }
 
   /** Extract a whole file into a string  */
-  std::string extractFile(const char *filename, size_t bufferSize=512)
+  static std::string extractFile(const char *filename, size_t bufferSize=512)
   {
     int fd = open(filename, O_RDONLY);
     std::string output;
@@ -310,7 +313,7 @@ namespace Umon
 
   /* Linux specific routines */
   /** get basic sysinfo (ram, swap, uptime, sysload...)  */
-  struct sysinfo getSysInfo(bool reload=false)
+  static struct sysinfo getSysInfo(bool reload=false)
   {
     static struct sysinfo _sysinfo;		/* sysinfo cached value */
     static std::chrono::steady_clock::time_point _sysinfo_tp; /* last sysinfo fetched */
@@ -326,63 +329,63 @@ namespace Umon
 
   /* Memory related */
   /** gets total ram  */
-  unsigned long totalram()
+  static unsigned long totalram()
   {
     auto si = getSysInfo();
     return si.totalram * si.mem_unit;
   }
 
   /** gets free ram  */
-  unsigned long freeram()
+  static unsigned long freeram()
   {
     auto si = getSysInfo();
     return si.freeram * si.mem_unit;
   }
 
   /** gets used ram  */
-  unsigned long usedram()
+  static unsigned long usedram()
   {
     auto si = getSysInfo();
     return ( si.totalram - si.freeram )* si.mem_unit;
   }
 
   /** gets total used ram (used and buffers) */
-  unsigned long usedramb()
+  static unsigned long usedramb()
   {
     auto si = getSysInfo();
     return ( si.totalram - si.freeram - si.bufferram )* si.mem_unit;
   }
 
   /** gets shared ram  */
-  unsigned long sharedram()
+  static unsigned long sharedram()
   {
     auto si = getSysInfo();
     return si.sharedram * si.mem_unit;
   }
 
   /** gets buffer ram  */
-  unsigned long bufferram()
+  static unsigned long bufferram()
   {
     auto si = getSysInfo();
     return si.bufferram * si.mem_unit;
   }
 
   /** gets total swap  */
-  unsigned long totalswap()
+  static unsigned long totalswap()
   {
     auto si = getSysInfo();
     return si.totalswap * si.mem_unit;
   }
 
   /** gets free swap space  */
-  unsigned long freeswap()
+  static unsigned long freeswap()
   {
     auto si = getSysInfo();
     return si.freeswap * si.mem_unit;
   }
 
   /** gets used swap */
-  unsigned long usedswap()
+  static unsigned long usedswap()
   {
     auto si = getSysInfo();
     return ( si.totalswap - si.freeswap ) * si.mem_unit;
@@ -390,27 +393,27 @@ namespace Umon
 
   /* We will get high mem usually with PAE in x86 with >4Gb of RAM */
   /** gets total high mem  */
-  unsigned long totalHighMem()
+  static unsigned long totalHighMem()
   {
     auto si = getSysInfo();
     return si.totalhigh * si.mem_unit;
   }
 
   /** gets free high mem  */
-  unsigned long freeHighMem()
+  static unsigned long freeHighMem()
   {
     auto si = getSysInfo();
     return si.freehigh * si.mem_unit;
   }
 
   /** gets memory unit size  */
-  unsigned int memoryUnitSize()
+  static unsigned int memoryUnitSize()
   {
     return getSysInfo().mem_unit;
   }
 
   /** gets uptime via sysinfo or via /proc/uptime (more portable to other unixes)  */
-  long uptime()
+  static long uptime()
   {
     long tmp = getSysInfo().uptime;
     if (!tmp)
@@ -426,89 +429,89 @@ namespace Umon
 
   /* Sysload as unsigned long */
   /** gets sysload in struct  */
-  Sysloadsl sysloadu()
+  static Sysloadsl sysloadu()
   {
     auto sy = getSysInfo();
     return {sy.loads[0], sy.loads[1], sy.loads[2]};
   }
 
   /** gets sysload in 1 min  */
-  unsigned long sysload1u()
+  static unsigned long sysload1u()
   {
     return getSysInfo().loads[0];
   }
 
   /** gets sysload in 5min  */
-  unsigned long sysload5u()
+  static unsigned long sysload5u()
   {
     return getSysInfo().loads[1];
   }
 
   /** gets sysload in 15min  */
-  unsigned long sysload15u()
+  static unsigned long sysload15u()
   {
     return getSysInfo().loads[2];
   }
 
   /** Sysload as double values (as $ uptime does) */
-  Sysloads sysload()
+  static Sysloads sysload()
   {
     auto sy = getSysInfo();
     return {sy.loads[0] / float(1 << SI_LOAD_SHIFT), sy.loads[1] / float(1 << SI_LOAD_SHIFT), sy.loads[2] / float(1 << SI_LOAD_SHIFT)};
   }
 
   /** gets sysload in 1 min (double) */
-  double sysload1()
+  static double sysload1()
   {
     return getSysInfo().loads[0] / float(1 << SI_LOAD_SHIFT);
   }
 
   /** gets sysload in 5 min (double) */
-  double sysload5()
+  static double sysload5()
   {
     return getSysInfo().loads[1] / float(1 << SI_LOAD_SHIFT);
   }
 
   /** gets sysload in 15 min (double) */
-  double sysload15()
+  static double sysload15()
   {
     return getSysInfo().loads[2] / float(1 << SI_LOAD_SHIFT);
   }
 
   /** Get total proccesses. It shows current total number of THREADS in our system,
    but sysinfo() says it show processes. */
-  unsigned short totalThreads()
+  static unsigned short totalThreads()
   {
     return getSysInfo().procs;
   }
 
   /* System configuration */
   /** gets max arguments length  */
-  long maxArgumentsLength()
+  static long maxArgumentsLength()
   {
     return sysconf(_SC_ARG_MAX);
   }
 
   /** gets max processes per user  */
-  long maxProcessesPerUser()
+  static long maxProcessesPerUser()
   {
     return sysconf(_SC_CHILD_MAX);
   }
 
   /** gets clock ticks per second  */
-  long ticksPerSecond()
+  static long ticksPerSecond()
   {
     return sysconf(_SC_CLK_TCK);
   }
 
   /** gets max opened files  */
-  long maxOpenedFiles()
+  static long maxOpenedFiles()
   {
     return sysconf(_SC_OPEN_MAX);
   }
 
   /** get page size. Page size doesn't change, so it's calculated once */
-  long pageSize()
+  static long pageSize()
   {
     static long psize = sysconf(_SC_PAGESIZE);
     return psize;
@@ -516,25 +519,25 @@ namespace Umon
 
   /* These functions are not using POSIX standard */
   /** gets total RAM pages  */
-  long totalPagesRam()
+  static long totalPagesRam()
   {
     return sysconf(_SC_PHYS_PAGES);
   }
 
   /** gets available RAM pages  */
-  long availablePagesRam()
+  static long availablePagesRam()
   {
     return sysconf(_SC_AVPHYS_PAGES);
   }
 
   /** gets number of cpus (or cores)  */
-  unsigned cpuCount()
+  static unsigned cpuCount()
   {
     return sysconf(_SC_NPROCESSORS_CONF);
   }
 
   /** gets number of online cpus (or cores)  */
-  unsigned onlineCpuCount()
+  static unsigned onlineCpuCount()
   {
     return sysconf(_SC_NPROCESSORS_ONLN);
   }
@@ -543,7 +546,7 @@ namespace Umon
   namespace Mounts
   {
     /** Gets all mount points information  */
-    MountPoints mountsInfo(bool reload=false)
+    static MountPoints mountsInfo(bool reload=false)
     {
       static MountPoints res;
       static std::chrono::steady_clock::time_point _mpinfo_tp; /* last mounts info fetched */
@@ -616,7 +619,7 @@ namespace Umon
     }
 
     /** Get free space in mountpoint */
-    long getFreeSpace(std::string name)
+    static long getFreeSpace(std::string name)
     {
       auto mps = mountsInfo();
       for (auto m : mps)
@@ -628,7 +631,7 @@ namespace Umon
     }
 
     /** Get total size of mount point */
-    long getTotalSpace(std::string name)
+    static long getTotalSpace(std::string name)
     {
       auto mps = mountsInfo();
       for (auto m : mps)
@@ -640,7 +643,7 @@ namespace Umon
     }
 
     /** Get used space in mount point*/
-    long getUsedSpace(std::string name)
+    static long getUsedSpace(std::string name)
     {
       auto mps = mountsInfo();
       for (auto m : mps)
@@ -652,7 +655,7 @@ namespace Umon
     }
 
     /** Get used space ratio in mount point*/
-    double getUsedRatio(std::string name)
+    static double getUsedRatio(std::string name)
     {
       auto mps = mountsInfo();
       for (auto m : mps)
@@ -664,7 +667,7 @@ namespace Umon
     }
 
     /** Gets mount point's type  */
-    std::string getType(std::string name)
+    static std::string getType(std::string name)
       {
 	auto mps = mountsInfo();
 	for (auto m : mps)
@@ -891,7 +894,7 @@ namespace Umon
    /** build process internal summary. Many functions will build the entire process summary
        as it isn't too expensive, save programming time and these functions won't be used just
        once for a single process. My intention is to iterate over processes each time. */
-   void buildProcSummary(bool reload=false)
+   static void buildProcSummary(bool reload=false)
    {
      static std::chrono::steady_clock::time_point _procsum_tp; /* last sysinfo fetched */
      auto now = std::chrono::steady_clock::now();
@@ -907,7 +910,7 @@ namespace Umon
    }
 
    /** build advanced process summary. Automatically calls buildProcSummary()  */
-   void buildAdvancedSummary(bool reload=false)
+   static void buildAdvancedSummary(bool reload=false)
    {
      buildProcSummary(reload);
      static std::chrono::steady_clock::time_point _procsum_tp; /* last sysinfo fetched */
@@ -944,20 +947,20 @@ namespace Umon
    }
 
    /** Returns time taken to build the summary  */
-   double timeToBuildSummary()
+   static double timeToBuildSummary()
    {
      return std::chrono::duration_cast<std::chrono::duration<double,std::ratio<1>>>(ProcessSummary.generationTime).count();
    }
 
    /** another process count, this time with our process map  */
-   unsigned processCount()
+   static unsigned processCount()
    {
      buildProcSummary();
      return ProcessSummary.processes.size();
    }
 
    /** count processes with given name  */
-   unsigned countProcess(std::string name)
+   static unsigned countProcess(std::string name)
    {
      buildProcSummary();
      buildAdvancedSummary();
@@ -971,7 +974,7 @@ namespace Umon
    /** total %CPU by a given process. If allTime is true, the % will be
        calculated from the process start. If not, it will be calculated from
        the last call to any process function (as it uses buildProcSummary). */
-   double totalPCPU(std::string name, bool allTime=false)
+   static double totalPCPU(std::string name, bool allTime=false)
    {
      buildProcSummary();
      buildAdvancedSummary();
@@ -984,14 +987,14 @@ namespace Umon
    }
 
    /** Get all processes with a given name in a MultiProc  */
-   MultiProc getByName(std::string name)
+   static MultiProc getByName(std::string name)
    {
      buildAdvancedSummary();
      return ProcessSummary.advanced[name];
    }
 
    /** Get all processes information */
-   std::map<unsigned, SingleProc> getAllProcs()
+   static std::map<unsigned, SingleProc> getAllProcs()
    {
      std::map<unsigned, SingleProc> result;
      buildProcSummary();
@@ -1009,7 +1012,7 @@ namespace Umon
    }
 
    /** Gets all process over a %CPU threshold  */
-   std::vector<SingleProc> getByPCPU(double threshold, bool allTime=false)
+   static std::vector<SingleProc> getByPCPU(double threshold, bool allTime=false)
    {
      std::vector<SingleProc> result;
      buildProcSummary();
@@ -1037,7 +1040,7 @@ namespace Umon
    }
 
    /** Gets all process over a %CPU threshold (counting all processes with the same name)  */
-   std::map<std::string, MultiProc> getByPCPUCol(double threshold, bool allTime=false)
+   static std::map<std::string, MultiProc> getByPCPUCol(double threshold, bool allTime=false)
    {
      std::map<std::string, MultiProc> result;
      buildAdvancedSummary();
@@ -1062,7 +1065,7 @@ namespace Umon
    }
 
    /** Gets all process over a Vsize threshold */
-   std::vector<SingleProc> getByVsize(unsigned long threshold)
+   static std::vector<SingleProc> getByVsize(unsigned long threshold)
    {
      std::vector<SingleProc> result;
      buildProcSummary();
@@ -1083,7 +1086,7 @@ namespace Umon
    }
 
    /** Gets all process over a Vsize threshold (counting all processes with the same name) */
-   std::map<std::string, MultiProc> getByVsizeCol(unsigned long long threshold)
+   static std::map<std::string, MultiProc> getByVsizeCol(unsigned long long threshold)
    {
      std::map<std::string, MultiProc> result;
      buildAdvancedSummary();
