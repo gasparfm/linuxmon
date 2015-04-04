@@ -554,6 +554,8 @@ namespace Umon
       if ( (!reload) && (_mpinfo_tp+_valueDuration >= std::chrono::steady_clock::now()) )
 	return res;
 
+      res.clear();
+
       struct mntent *ent;
       struct statfs sfs;
       FILE *fd = setmntent("/etc/mtab", "r");
@@ -614,6 +616,8 @@ namespace Umon
 	}
 
       _mpinfo_tp = std::chrono::steady_clock::now();
+
+      fclose(fd);
 
       return res;
     }
